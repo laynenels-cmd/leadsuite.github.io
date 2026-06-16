@@ -1978,3 +1978,8 @@
   </script>
 </body>
 </html>
+<img width="1672" height="941" alt="leadsuite-metrics" src="https://github.com/user-attachments/assets/1a2dab92-460a-4ba0-b994-b105682c17f3" />
+<img width="2508" height="627" alt="leadsuite-logo" src="https://github.com/user-attachments/assets/03ffe9f8-a093-40df-9efd-29a030007959" />
+<img width="1672" height="941" alt="leadsuite-dashboard" src="https://github.com/user-attachments/assets/3ca5f245-45be-47ca-9743-e17870a70ca5" />
+<img width="1672" height="941" alt="leadsuite-automation-map" src="https://github.com/user-attachments/assets/b3f73d72-ff0f-49a7-8d61-3edb54aa5e78" />
+
