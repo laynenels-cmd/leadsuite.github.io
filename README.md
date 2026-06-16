@@ -1,887 +1,1980 @@
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LeadSuite — Data-Fueled Cold Email Engine for B2B Agencies</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#0D1117;          /* deep ground */
-    --ink-2:#121A24;        /* raised dark surface */
-    --ink-3:#19222F;        /* card on dark */
-    --ink-4:#222D3C;        /* hairline-raised */
-    --mist:#F4F6F8;         /* cool light section */
-    --paper:#FFFFFF;
-    --line-d:rgba(255,255,255,0.09);
-    --line-l:#E3E8ED;
-    --t-hi:#F6F8FB;         /* high text on dark */
-    --t-mid:#98A6B5;        /* muted on dark */
-    --t-ink:#0F141C;        /* text on light */
-    --t-inkmute:#56616F;    /* muted on light */
-    --ignite:#FF7A1A;       /* engine / heat / primary accent */
-    --ignite-2:#FF9A4D;
-    --ignite-soft:rgba(255,122,26,0.13);
-    --fresh:#3DDC97;        /* fresh / verified / live signal */
-    --fresh-soft:rgba(61,220,151,0.13);
-    --warn:#FFC24B;
-    --maxw:1180px;
-    --display:'Space Grotesk',sans-serif;
-    --body:'IBM Plex Sans',sans-serif;
-    --mono:'IBM Plex Mono',monospace;
-  }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LeadSuite - Fully Managed Cold Email Engine</title>
+  <meta name="description" content="LeadSuite builds and manages a data-fueled cold email engine for B2B agencies and service businesses.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #061f46;
+      --navy-2: #0c2b5a;
+      --blue: #1f6bff;
+      --blue-2: #2f8cff;
+      --blue-soft: #eaf3ff;
+      --green: #18bf78;
+      --green-soft: #e8fbf3;
+      --orange: #ff7a1a;
+      --orange-soft: #fff1e7;
+      --paper: #ffffff;
+      --wash: #f5f8fc;
+      --wash-2: #eef5ff;
+      --line: #dbe4ef;
+      --line-strong: #c7d5e6;
+      --muted: #667895;
+      --muted-2: #8a98aa;
+      --shadow: 0 18px 42px rgba(6, 31, 70, 0.11);
+      --shadow-soft: 0 10px 24px rgba(6, 31, 70, 0.08);
+      --max: 1180px;
+    }
 
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    font-family:var(--body);
-    background:var(--ink);
-    color:var(--t-hi);
-    line-height:1.6;
-    -webkit-font-smoothing:antialiased;
-    overflow-x:hidden;
-  }
-  h1,h2,h3,h4{font-family:var(--display);line-height:1.05;letter-spacing:-0.02em;font-weight:700}
-  a{color:inherit;text-decoration:none}
-  .mono{font-family:var(--mono)}
+    * {
+      box-sizing: border-box;
+    }
 
-  /* ---------- layout primitives ---------- */
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
-  .section{padding:104px 0;position:relative}
-  .section--tight{padding:72px 0}
-  .light{background:var(--mist);color:var(--t-ink)}
-  .light h1,.light h2,.light h3,.light h4{color:var(--t-ink)}
-  .ink2{background:var(--ink-2)}
+    html {
+      scroll-behavior: smooth;
+    }
 
-  .eyebrow{
-    font-family:var(--mono);font-size:12px;letter-spacing:0.22em;text-transform:uppercase;
-    color:var(--ignite);font-weight:600;display:inline-flex;align-items:center;gap:9px;
-  }
-  .eyebrow::before{content:"";width:22px;height:1px;background:var(--ignite);display:inline-block}
-  .light .eyebrow{color:#C2540A}
-  .light .eyebrow::before{background:#C2540A}
+    body {
+      margin: 0;
+      font-family: "Inter", Arial, sans-serif;
+      color: var(--navy);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
 
-  .sectionhead{max-width:760px;margin-bottom:54px}
-  .sectionhead h2{font-size:clamp(30px,4.4vw,50px);margin:18px 0 16px}
-  .sectionhead p{font-size:18px;color:var(--t-mid);max-width:640px}
-  .light .sectionhead p{color:var(--t-inkmute)}
+    body.lock-scroll {
+      overflow: hidden;
+    }
 
-  /* ---------- buttons ---------- */
-  .btn{
-    display:inline-flex;align-items:center;justify-content:center;gap:9px;
-    font-family:var(--display);font-weight:600;font-size:15.5px;letter-spacing:-0.01em;
-    padding:15px 26px;border-radius:10px;cursor:pointer;border:1px solid transparent;
-    transition:transform .15s ease, box-shadow .2s ease, background .2s ease;
-  }
-  .btn--primary{background:var(--ignite);color:#1A0E03;box-shadow:0 6px 24px rgba(255,122,26,.32)}
-  .btn--primary:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(255,122,26,.42)}
-  .btn--ghost{background:transparent;border-color:var(--line-d);color:var(--t-hi)}
-  .btn--ghost:hover{border-color:var(--ignite);color:var(--ignite-2)}
-  .light .btn--ghost{border-color:var(--line-l);color:var(--t-ink)}
-  .light .btn--ghost:hover{border-color:var(--ignite);color:#C2540A}
-  .btn--lg{padding:18px 34px;font-size:16.5px}
-  .btn .arr{transition:transform .15s ease}
-  .btn:hover .arr{transform:translateX(3px)}
+    img {
+      display: block;
+      max-width: 100%;
+    }
 
-  /* ---------- nav ---------- */
-  header.nav{position:sticky;top:0;z-index:50;background:rgba(13,17,23,.78);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-d)}
-  .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
-  .logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-0.03em}
-  .logo .mark{
-    width:26px;height:26px;border-radius:7px;
-    background:linear-gradient(135deg,var(--ignite),var(--ignite-2));
-    display:grid;place-items:center;color:#1A0E03;font-size:15px;font-weight:700;box-shadow:0 3px 12px rgba(255,122,26,.4)
-  }
-  .navlinks{display:flex;align-items:center;gap:30px;font-size:14.5px;color:var(--t-mid);font-weight:500}
-  .navlinks a:hover{color:var(--t-hi)}
-  .nav .btn{padding:11px 20px;font-size:14px}
-  @media(max-width:860px){.navlinks{display:none}}
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-  /* ---------- hero ---------- */
-  .hero{position:relative;padding:78px 0 96px;overflow:hidden}
-  .hero::before{
-    content:"";position:absolute;inset:0;z-index:0;
-    background:
-      radial-gradient(620px 360px at 78% 8%, rgba(255,122,26,.16), transparent 70%),
-      radial-gradient(540px 420px at 6% 96%, rgba(61,220,151,.09), transparent 70%);
-  }
-  .hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center}
-  @media(max-width:980px){.hero .wrap{grid-template-columns:1fr;gap:42px}}
-  .hero h1{font-size:clamp(38px,5.8vw,68px);margin:22px 0}
-  .hero h1 .hot{color:var(--ignite)}
-  .hero .sub{font-size:19px;color:var(--t-mid);max-width:560px;margin-bottom:32px}
-  .hero .sub b{color:var(--t-hi);font-weight:600}
-  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:26px}
-  .hero-trust{display:flex;gap:26px;flex-wrap:wrap;font-size:13px;color:var(--t-mid)}
-  .hero-trust span{display:inline-flex;align-items:center;gap:7px}
-  .dot{width:7px;height:7px;border-radius:50%;background:var(--fresh);box-shadow:0 0 0 3px var(--fresh-soft)}
+    button {
+      font: inherit;
+    }
 
-  /* ---------- console (hero signature) ---------- */
-  .console{
-    background:linear-gradient(180deg,var(--ink-3),var(--ink-2));
-    border:1px solid var(--line-d);border-radius:16px;padding:6px;
-    box-shadow:0 30px 70px rgba(0,0,0,.5);
-  }
-  .console-top{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line-d)}
-  .console-top .led{width:9px;height:9px;border-radius:50%}
-  .led.r{background:#FF5B5B}.led.y{background:var(--warn)}.led.g{background:var(--fresh)}
-  .console-title{margin-left:8px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--t-mid)}
-  .console-live{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--fresh);display:flex;align-items:center;gap:6px}
-  .console-live .dot{animation:pulse 1.8s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-  .console-body{padding:18px 16px 20px}
-  .crow{border:1px solid var(--line-d);border-radius:11px;padding:14px 15px;margin-bottom:12px;background:rgba(255,255,255,.015)}
-  .crow:last-child{margin-bottom:0}
-  .crow-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--t-mid);margin-bottom:9px;display:flex;justify-content:space-between}
-  .crow-label .stage{color:var(--ignite)}
-  .crow-main{display:flex;align-items:baseline;gap:10px}
-  .crow-num{font-family:var(--mono);font-size:26px;font-weight:600;color:var(--t-hi)}
-  .crow-unit{font-size:13px;color:var(--t-mid)}
-  .pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
-  .pill{font-family:var(--mono);font-size:10.5px;padding:4px 9px;border-radius:20px;border:1px solid var(--line-d);color:var(--t-mid)}
-  .pill.live{color:var(--fresh);border-color:rgba(61,220,151,.32);background:var(--fresh-soft)}
-  .pill.hot{color:var(--ignite-2);border-color:rgba(255,122,26,.32);background:var(--ignite-soft)}
-  .flowarrow{text-align:center;color:var(--t-mid);font-size:14px;margin:-4px 0 8px}
+    .wrap {
+      width: min(var(--max), calc(100% - 48px));
+      margin: 0 auto;
+    }
 
-  /* ---------- stat bar ---------- */
-  .statbar{border-top:1px solid var(--line-d);border-bottom:1px solid var(--line-d);background:var(--ink-2)}
-  .statbar .grid{display:grid;grid-template-columns:repeat(4,1fr)}
-  .stat{padding:34px 26px;border-right:1px solid var(--line-d)}
-  .stat:last-child{border-right:none}
-  .stat .n{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--ignite);letter-spacing:-0.02em}
-  .stat .l{font-size:13.5px;color:var(--t-mid);margin-top:5px}
-  @media(max-width:760px){.statbar .grid{grid-template-columns:repeat(2,1fr)}.stat:nth-child(2n){border-right:none}.stat:nth-child(-n+2){border-bottom:1px solid var(--line-d)}}
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(255, 255, 255, 0.92);
+      border-bottom: 1px solid rgba(219, 228, 239, 0.78);
+      backdrop-filter: blur(18px);
+    }
 
-  /* ---------- prose thesis ---------- */
-  .thesis{max-width:780px}
-  .thesis p{font-size:19px;color:var(--t-mid);margin-bottom:22px}
-  .thesis p b{color:var(--t-hi);font-weight:600}
-  .thesis .hammer{font-family:var(--display);font-size:clamp(22px,3vw,30px);line-height:1.25;color:var(--t-hi);font-weight:600;letter-spacing:-0.02em;margin:34px 0;padding-left:22px;border-left:3px solid var(--ignite)}
-  .light .thesis p{color:var(--t-inkmute)}
-  .light .thesis p b{color:var(--t-ink)}
-  .light .thesis .hammer{color:var(--t-ink)}
+    .nav {
+      height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
 
-  /* ---------- triple cards ---------- */
-  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
-  @media(max-width:860px){.cards3{grid-template-columns:1fr}}
-  .card{background:var(--ink-3);border:1px solid var(--line-d);border-radius:14px;padding:26px}
-  .light .card{background:var(--paper);border-color:var(--line-l);box-shadow:0 2px 16px rgba(15,20,28,.04)}
-  .card .ic{width:40px;height:40px;border-radius:10px;background:var(--ignite-soft);color:var(--ignite);display:grid;place-items:center;font-size:19px;margin-bottom:16px;font-family:var(--mono)}
-  .card h4{font-size:18.5px;margin-bottom:9px}
-  .card p{font-size:15px;color:var(--t-mid)}
-  .light .card p{color:var(--t-inkmute)}
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      min-width: 172px;
+    }
 
-  /* ---------- broken alternatives ---------- */
-  .broken{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:46px}
-  @media(max-width:760px){.broken{grid-template-columns:1fr}}
-  .brk{display:flex;gap:15px;padding:20px 22px;border:1px solid var(--line-l);border-radius:12px;background:var(--paper)}
-  .brk .x{flex:0 0 auto;width:26px;height:26px;border-radius:7px;background:#FBE7E4;color:#D23B1F;display:grid;place-items:center;font-weight:700;font-size:14px;font-family:var(--mono)}
-  .brk h4{font-size:16.5px;margin-bottom:4px}
-  .brk p{font-size:14.5px;color:var(--t-inkmute)}
+    .brand img {
+      width: 170px;
+      height: auto;
+    }
 
-  /* ---------- mechanism flow ---------- */
-  .mech{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:50px;counter-reset:m}
-  @media(max-width:960px){.mech{grid-template-columns:1fr}}
-  .step{position:relative;padding:26px 22px;border:1px solid var(--line-d);border-radius:14px;background:var(--ink-3);margin-right:-1px}
-  .step .sn{font-family:var(--mono);font-size:12px;color:var(--ignite);letter-spacing:.1em}
-  .step h4{font-size:17px;margin:12px 0 9px}
-  .step p{font-size:13.8px;color:var(--t-mid)}
-  .step .tag{display:inline-block;margin-top:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:6px}
-  .tag.in{background:var(--fresh-soft);color:var(--fresh)}
-  .tag.eng{background:var(--ignite-soft);color:var(--ignite-2)}
-  .tag.out{background:rgba(255,255,255,.06);color:var(--t-hi)}
+    .nav-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 34px;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 600;
+    }
 
-  /* ---------- infra under the hood ---------- */
-  .hood{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center;margin-top:40px}
-  @media(max-width:860px){.hood{grid-template-columns:1fr;gap:30px}}
-  .hood ul{list-style:none;display:flex;flex-direction:column;gap:14px}
-  .hood li{display:flex;gap:13px;font-size:16px;color:var(--t-mid)}
-  .hood li b{color:var(--t-hi);font-weight:600}
-  .hood li .ck{flex:0 0 auto;width:22px;height:22px;border-radius:6px;background:var(--fresh-soft);color:var(--fresh);display:grid;place-items:center;font-size:12px;margin-top:2px}
-  .rig{background:linear-gradient(180deg,var(--ink-3),var(--ink-2));border:1px solid var(--line-d);border-radius:16px;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.4)}
-  .rig .rhead{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--t-mid);margin-bottom:16px;display:flex;justify-content:space-between}
-  .domgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:8px}
-  .node{aspect-ratio:1;border-radius:7px;border:1px solid var(--line-d);display:grid;place-items:center;font-family:var(--mono);font-size:9px;color:var(--t-mid);background:rgba(255,255,255,.02)}
-  .node.on{border-color:rgba(61,220,151,.4);color:var(--fresh);background:var(--fresh-soft)}
-  .riglbl{font-family:var(--mono);font-size:10px;color:var(--t-mid);margin:14px 0 7px;letter-spacing:.08em}
-  .meter{height:8px;border-radius:6px;background:var(--ink-4);overflow:hidden;margin-bottom:4px}
-  .meter span{display:block;height:100%;background:linear-gradient(90deg,var(--fresh),#2fb47e)}
-  .metaline{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--t-mid)}
+    .nav-links a {
+      transition: color 160ms ease;
+    }
 
-  /* ---------- cost comparison ---------- */
-  .compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:46px}
-  @media(max-width:860px){.compare{grid-template-columns:1fr}}
-  .col{border-radius:16px;padding:30px 28px;border:1px solid var(--line-l);background:var(--paper)}
-  .col.win{border:1.5px solid var(--ignite);box-shadow:0 18px 50px rgba(255,122,26,.14);position:relative}
-  .col .tophead{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--t-inkmute);margin-bottom:6px}
-  .col h3{font-size:23px;margin-bottom:22px;color:var(--t-ink)}
-  .col.win h3{color:#C2540A}
-  .col ul{list-style:none;display:flex;flex-direction:column;gap:13px;margin-bottom:24px}
-  .col li{display:flex;gap:11px;font-size:15px;color:var(--t-inkmute);align-items:flex-start}
-  .col li .m{flex:0 0 auto;font-size:14px;margin-top:1px}
-  .col.diy li .m{color:#D23B1F}
-  .col.win li .m{color:var(--fresh);font-weight:700}
-  .col .total{border-top:1px solid var(--line-l);padding-top:18px}
-  .col .total .lbl{font-size:13px;color:var(--t-inkmute);margin-bottom:4px}
-  .col .total .big{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--t-ink)}
-  .col.win .total .big{color:#C2540A}
-  .ribbon{position:absolute;top:-13px;right:24px;background:var(--ignite);color:#1A0E03;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:5px 13px;border-radius:7px;font-weight:600}
+    .nav-links a:hover {
+      color: var(--blue);
+    }
 
-  /* ---------- roadmap ---------- */
-  .road{display:flex;flex-direction:column;gap:18px;margin-top:46px}
-  .phase{display:grid;grid-template-columns:120px 1fr;gap:26px;border:1px solid var(--line-d);border-radius:16px;padding:28px;background:var(--ink-3)}
-  @media(max-width:760px){.phase{grid-template-columns:1fr;gap:16px}}
-  .phase .pn{font-family:var(--mono)}
-  .phase .pn .big{font-size:42px;color:var(--ignite);font-weight:600;display:block;line-height:1}
-  .phase .pn .wk{font-size:12px;color:var(--t-mid);letter-spacing:.08em;text-transform:uppercase;margin-top:8px;display:block}
-  .phase h4{font-size:20px;margin-bottom:14px}
-  .phase ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  @media(max-width:620px){.phase ul{grid-template-columns:1fr}}
-  .phase li{display:flex;gap:10px;font-size:14.5px;color:var(--t-mid)}
-  .phase li .ck{color:var(--fresh);font-family:var(--mono);flex:0 0 auto}
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-  /* ---------- division of labor ---------- */
-  .labor{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:46px}
-  @media(max-width:760px){.labor{grid-template-columns:1fr}}
-  .lcol{border:1px solid var(--line-d);border-radius:16px;padding:30px 28px;background:var(--ink-3)}
-  .lcol.us{border-color:rgba(255,122,26,.35)}
-  .lcol .lh{display:flex;align-items:center;gap:11px;margin-bottom:22px;font-family:var(--display);font-size:20px;font-weight:600}
-  .lcol .lh .badge{font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:6px}
-  .us .lh .badge{background:var(--ignite-soft);color:var(--ignite)}
-  .you .lh .badge{background:var(--fresh-soft);color:var(--fresh)}
-  .lcol ul{list-style:none;display:flex;flex-direction:column;gap:12px}
-  .lcol li{display:flex;gap:12px;font-size:15px;color:var(--t-mid)}
-  .lcol li .ck{flex:0 0 auto;color:var(--ignite);font-family:var(--mono)}
-  .you li .ck{color:var(--fresh)}
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 0 28px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: var(--blue);
+      color: #ffffff;
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(31, 107, 255, 0.24);
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+      white-space: nowrap;
+    }
 
-  /* ---------- deliverables ---------- */
-  .deliv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:46px}
-  @media(max-width:860px){.deliv{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:560px){.deliv{grid-template-columns:1fr}}
-  .ditem{display:flex;gap:11px;padding:15px 17px;border:1px solid var(--line-l);border-radius:10px;background:var(--paper);font-size:14.5px;color:var(--t-ink)}
-  .ditem .ck{flex:0 0 auto;color:var(--ignite);font-family:var(--mono);font-weight:700}
+    .btn:hover {
+      transform: translateY(-2px);
+      background: #0e5dff;
+      box-shadow: 0 16px 30px rgba(31, 107, 255, 0.31);
+    }
 
-  /* ---------- proof / believability ---------- */
-  .proofgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:46px}
-  @media(max-width:860px){.proofgrid{grid-template-columns:1fr}}
-  .pcard{background:var(--ink-3);border:1px solid var(--line-d);border-radius:14px;padding:26px}
-  .pcard .k{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ignite);margin-bottom:12px}
-  .pcard h4{font-size:18px;margin-bottom:9px}
-  .pcard p{font-size:14.5px;color:var(--t-mid)}
+    .btn.secondary {
+      background: #f7f9fc;
+      color: var(--navy);
+      border-color: #e7edf5;
+      box-shadow: none;
+    }
 
-  /* ---------- guarantee ---------- */
-  .guarantee{border:1.5px solid rgba(255,122,26,.4);border-radius:18px;padding:42px;background:linear-gradient(180deg,var(--ink-3),var(--ink-2));margin-top:10px;display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:center}
-  @media(max-width:760px){.guarantee{grid-template-columns:1fr;gap:20px;padding:30px}}
-  .gseal{width:96px;height:96px;border-radius:50%;border:2px solid var(--ignite);display:grid;place-items:center;text-align:center;font-family:var(--mono);font-size:11px;color:var(--ignite);letter-spacing:.08em;line-height:1.3}
-  .guarantee h3{font-size:24px;margin-bottom:12px}
-  .guarantee p{font-size:16px;color:var(--t-mid)}
-  .guarantee p+p{margin-top:12px}
+    .btn.secondary:hover {
+      color: var(--blue);
+      border-color: #c9dcff;
+      background: #ffffff;
+    }
 
-  /* ---------- pricing ---------- */
-  .price-note{font-family:var(--mono);font-size:12.5px;color:var(--t-inkmute);text-align:center;margin-bottom:40px;letter-spacing:.04em}
-  .plans{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:880px;margin:0 auto}
-  @media(max-width:760px){.plans{grid-template-columns:1fr}}
-  .plan{border:1px solid var(--line-l);border-radius:18px;padding:34px 32px;background:var(--paper);display:flex;flex-direction:column}
-  .plan.pop{border:1.5px solid var(--ignite);box-shadow:0 20px 56px rgba(255,122,26,.16);position:relative}
-  .plan .pname{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--t-inkmute);margin-bottom:14px}
-  .plan .price{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
-  .plan .price .amt{font-family:var(--mono);font-size:46px;font-weight:600;color:var(--t-ink);letter-spacing:-0.02em}
-  .plan .price .per{font-size:15px;color:var(--t-inkmute)}
-  .plan .qtr{font-family:var(--mono);font-size:13px;color:#C2540A;margin-bottom:24px}
-  .plan ul{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:28px;flex:1}
-  .plan li{display:flex;gap:11px;font-size:14.8px;color:var(--t-ink)}
-  .plan li .ck{flex:0 0 auto;color:var(--ignite);font-family:var(--mono);font-weight:700}
-  .plan .btn{width:100%}
-  .plan.pop .pname{color:#C2540A}
+    .btn.compact {
+      min-height: 46px;
+      padding: 0 22px;
+      font-size: 14px;
+    }
 
-  /* ---------- scarcity ---------- */
-  .scar{display:flex;align-items:center;gap:18px;max-width:780px;margin:46px auto 0;padding:24px 28px;border:1px solid rgba(255,122,26,.3);border-radius:14px;background:var(--ignite-soft)}
-  .scar .ic{font-size:24px}
-  .scar p{font-size:15.5px;color:var(--t-hi)}
-  .scar p b{color:var(--ignite-2)}
+    .mobile-menu {
+      display: none;
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--paper);
+      color: var(--navy);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
 
-  /* ---------- faq ---------- */
-  .faq{max-width:820px;margin:46px auto 0}
-  .qa{border-bottom:1px solid var(--line-d)}
-  .qa button{width:100%;text-align:left;background:none;border:none;color:var(--t-hi);font-family:var(--display);font-size:18px;font-weight:600;padding:24px 40px 24px 0;cursor:pointer;position:relative;letter-spacing:-0.01em}
-  .qa button::after{content:"+";position:absolute;right:6px;top:50%;transform:translateY(-50%);color:var(--ignite);font-size:24px;font-family:var(--mono);transition:transform .2s}
-  .qa.open button::after{content:"−"}
-  .qa .ans{max-height:0;overflow:hidden;transition:max-height .3s ease;color:var(--t-mid);font-size:15.5px}
-  .qa .ans p{padding-bottom:24px}
+    .mobile-menu svg {
+      width: 22px;
+      height: 22px;
+    }
 
-  /* ---------- final cta ---------- */
-  .final{position:relative;text-align:center;overflow:hidden}
-  .final::before{content:"";position:absolute;inset:0;background:radial-gradient(700px 400px at 50% 0%,rgba(255,122,26,.18),transparent 70%)}
-  .final .wrap{position:relative;z-index:1;max-width:760px}
-  .final h2{font-size:clamp(32px,5vw,56px);margin-bottom:18px}
-  .final h2 .hot{color:var(--ignite)}
-  .final p{font-size:19px;color:var(--t-mid);margin-bottom:34px}
-  .final .hero-cta{justify-content:center}
+    .mobile-panel {
+      display: none;
+      border-top: 1px solid var(--line);
+      background: var(--paper);
+    }
 
-  footer{border-top:1px solid var(--line-d);padding:42px 0;background:var(--ink)}
-  footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;font-size:13.5px;color:var(--t-mid)}
-  footer .legal{max-width:640px;line-height:1.6}
+    .mobile-panel.open {
+      display: block;
+    }
 
-  /* ---------- reveal ---------- */
-  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease}
-  .reveal.in{opacity:1;transform:none}
-  @media(prefers-reduced-motion:reduce){
-    .reveal{opacity:1;transform:none;transition:none}
-    .console-live .dot{animation:none}
-    html{scroll-behavior:auto}
-  }
-</style>
+    .mobile-panel .wrap {
+      display: grid;
+      gap: 10px;
+      padding: 18px 0 24px;
+    }
+
+    .mobile-panel a {
+      padding: 13px 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .mobile-panel a.btn {
+      color: #ffffff;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 30px 0 24px;
+      background:
+        radial-gradient(circle at 12% 20%, rgba(47, 140, 255, 0.09), transparent 32%),
+        linear-gradient(180deg, #ffffff 0%, #ffffff 70%, var(--wash) 100%);
+      text-align: center;
+    }
+
+    .offer-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 0 22px;
+      border-radius: 999px;
+      border: 1px solid #bcd4ff;
+      background: #edf4ff;
+      color: var(--blue);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .offer-pill svg {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+    }
+
+    .hero h1 {
+      max-width: 1030px;
+      margin: 24px auto 0;
+      font-size: 64px;
+      line-height: 1.04;
+      font-weight: 900;
+      letter-spacing: 0;
+      color: var(--navy);
+    }
+
+    .hero h1 .blue {
+      color: var(--blue);
+    }
+
+    .hero .subhead {
+      max-width: 820px;
+      margin: 20px auto 0;
+      color: var(--muted);
+      font-size: 19px;
+      line-height: 1.46;
+      font-weight: 500;
+    }
+
+    .hero .subhead strong {
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .hero-actions {
+      margin-top: 22px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .proof-row {
+      margin: 18px auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .proof-row span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .proof-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 0 5px var(--green-soft);
+    }
+
+    .hero-media {
+      width: min(1040px, 100%);
+      margin: 32px auto 0;
+      border: 1px solid #b9cdf1;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 24px 58px rgba(6, 31, 70, 0.18);
+      background: var(--paper);
+    }
+
+    .hero-media img {
+      width: 100%;
+      height: 270px;
+      object-fit: cover;
+      object-position: center 45%;
+    }
+
+    .metric-band {
+      background: var(--paper);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+    }
+
+    .metric {
+      min-height: 142px;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
+      padding: 22px 18px;
+      border-right: 1px solid var(--line);
+    }
+
+    .metric:last-child {
+      border-right: 0;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--navy);
+      font-size: 42px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .metric span {
+      margin-top: 12px;
+      color: #4f5d70;
+      font-size: 17px;
+      line-height: 1.25;
+      font-weight: 500;
+    }
+
+    .section {
+      padding: 92px 0;
+    }
+
+    .section[id] {
+      scroll-margin-top: 92px;
+    }
+
+    .section.wash {
+      background: var(--wash);
+    }
+
+    .section.bluewash {
+      background: linear-gradient(180deg, #ffffff 0%, var(--wash-2) 100%);
+    }
+
+    .section.dark {
+      background: var(--navy);
+      color: #ffffff;
+    }
+
+    .section-label {
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+    }
+
+    .section.dark .section-label {
+      color: #8fc0ff;
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 48px;
+      align-items: end;
+      margin-bottom: 48px;
+    }
+
+    .section-heading.center {
+      display: block;
+      max-width: 850px;
+      margin: 0 auto 48px;
+      text-align: center;
+    }
+
+    .section-heading h2 {
+      margin: 14px 0 0;
+      font-size: 54px;
+      line-height: 1.08;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    .section-heading p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 20px;
+      line-height: 1.48;
+      font-weight: 500;
+    }
+
+    .section.dark .section-heading p,
+    .section.dark .body-copy {
+      color: #c8d6ea;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 0.86fr 1.14fr;
+      gap: 52px;
+      align-items: center;
+    }
+
+    .body-copy {
+      color: #52637a;
+      font-size: 18px;
+      line-height: 1.72;
+    }
+
+    .body-copy p {
+      margin: 0 0 20px;
+    }
+
+    .body-copy strong {
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .quote-bar {
+      margin: 30px 0;
+      padding: 22px 0 22px 24px;
+      border-left: 5px solid var(--blue);
+      color: var(--navy);
+      font-size: 26px;
+      line-height: 1.24;
+      font-weight: 900;
+    }
+
+    .media-frame {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+    }
+
+    .media-frame img {
+      width: 100%;
+      height: auto;
+    }
+
+    .media-frame.slim img {
+      max-height: 520px;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .problem-item,
+    .proof-item,
+    .timeline-phase,
+    .faq-item,
+    .labor-column,
+    .plan-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .problem-item {
+      padding: 24px;
+    }
+
+    .problem-item .mark {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: #fff0ed;
+      color: #d64d30;
+      font-weight: 900;
+      margin-bottom: 18px;
+    }
+
+    .problem-item h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      line-height: 1.24;
+      letter-spacing: 0;
+    }
+
+    .problem-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+    }
+
+    .workflow-step {
+      min-height: 260px;
+      padding: 28px 22px;
+      border-right: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    .workflow-step:last-child {
+      border-right: 0;
+    }
+
+    .step-no {
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .workflow-step h3 {
+      margin: 14px 0 10px;
+      font-size: 20px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .workflow-step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      margin-top: 18px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: var(--blue);
+      background: var(--blue-soft);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .tag.green {
+      color: #078154;
+      background: var(--green-soft);
+    }
+
+    .wide-asset {
+      margin-top: 38px;
+      border: 1px solid #c6d7f1;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+    }
+
+    .wide-asset img {
+      width: 100%;
+      height: auto;
+    }
+
+    .report-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .report-title {
+      padding: 28px 30px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .report-title h3 {
+      margin: 0;
+      color: var(--navy);
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .report-title span {
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .table th {
+      background: var(--navy);
+      color: #ffffff;
+      font-size: 16px;
+      line-height: 1.2;
+      font-weight: 900;
+      text-align: center;
+      padding: 18px 16px;
+      border-right: 1px solid rgba(255, 255, 255, 0.24);
+    }
+
+    .table td {
+      color: #151f2c;
+      font-size: 16px;
+      text-align: center;
+      padding: 17px 16px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .table td:first-child {
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .table th:last-child,
+    .table td:last-child {
+      border-right: 0;
+    }
+
+    .table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .compare-column {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .compare-column.featured {
+      border-color: #b7d1ff;
+      box-shadow: 0 22px 48px rgba(31, 107, 255, 0.12);
+    }
+
+    .compare-head {
+      padding: 26px 28px 22px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .compare-column.featured .compare-head {
+      background: #ecf4ff;
+    }
+
+    .compare-label {
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .compare-head h3 {
+      margin: 10px 0 0;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    .compare-list {
+      list-style: none;
+      margin: 0;
+      padding: 24px 28px 28px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .compare-list li {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 12px;
+      color: #52637a;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .compare-list .icon {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      font-weight: 900;
+    }
+
+    .compare-list .bad {
+      color: #d64d30;
+      background: #fff0ed;
+    }
+
+    .compare-list .good {
+      color: #098c5b;
+      background: var(--green-soft);
+    }
+
+    .total-row {
+      border-top: 1px solid var(--line);
+      padding: 24px 28px 28px;
+      background: #fbfdff;
+    }
+
+    .total-row span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .total-row strong {
+      font-size: 30px;
+      line-height: 1.1;
+      font-weight: 900;
+      color: var(--navy);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 18px;
+    }
+
+    .timeline-phase {
+      display: grid;
+      grid-template-columns: 132px 1fr;
+      gap: 28px;
+      padding: 28px;
+      box-shadow: none;
+    }
+
+    .phase-num strong {
+      display: block;
+      color: var(--blue);
+      font-size: 52px;
+      line-height: 0.95;
+      font-weight: 900;
+    }
+
+    .phase-num span {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .timeline-phase h3 {
+      margin: 0 0 16px;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .checks {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 11px 18px;
+    }
+
+    .checks li {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .checks .check {
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .labor {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .labor-column {
+      padding: 30px;
+      box-shadow: none;
+    }
+
+    .labor-column h3 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 22px;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .small-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .labor-column.you .small-pill {
+      background: var(--green-soft);
+      color: #078154;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      max-width: 940px;
+      margin: 0 auto;
+    }
+
+    .plan-card {
+      position: relative;
+      overflow: hidden;
+      padding: 32px;
+    }
+
+    .plan-card.featured {
+      border-color: #a9c9ff;
+      background: #eef5ff;
+      box-shadow: 0 22px 48px rgba(31, 107, 255, 0.14);
+    }
+
+    .plan-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: var(--blue);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .plan-card.featured .plan-badge {
+      background: var(--orange);
+    }
+
+    .plan-card h3 {
+      margin: 18px 0 0;
+      font-size: 38px;
+      letter-spacing: 0;
+    }
+
+    .price {
+      margin: 18px 0 6px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      color: var(--navy);
+    }
+
+    .price strong {
+      font-size: 48px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .price span {
+      color: var(--muted);
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .quarter {
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 900;
+      margin-bottom: 24px;
+    }
+
+    .plan-card .checks {
+      grid-template-columns: 1fr;
+      margin-bottom: 28px;
+    }
+
+    .scarcity {
+      max-width: 850px;
+      margin: 28px auto 0;
+      padding: 22px 26px;
+      border: 1px solid #c8dcff;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #52637a;
+      font-size: 16px;
+      line-height: 1.5;
+      text-align: center;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .scarcity strong {
+      color: var(--navy);
+    }
+
+    .proof-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .proof-item {
+      padding: 26px;
+      box-shadow: none;
+    }
+
+    .proof-item span {
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .proof-item h3 {
+      margin: 14px 0 10px;
+      font-size: 22px;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .proof-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .guarantee {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 34px;
+      align-items: center;
+      padding: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(47, 140, 255, 0.2), rgba(24, 191, 120, 0.12));
+    }
+
+    .seal {
+      width: 130px;
+      height: 130px;
+      border-radius: 999px;
+      border: 2px solid #8fc0ff;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      line-height: 1.35;
+    }
+
+    .guarantee h2 {
+      margin: 0 0 14px;
+      color: #ffffff;
+      font-size: 38px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .guarantee p {
+      margin: 0;
+      color: #d5e2f4;
+      font-size: 17px;
+      line-height: 1.62;
+    }
+
+    .faq {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      gap: 12px;
+    }
+
+    .faq-item {
+      box-shadow: none;
+      overflow: hidden;
+    }
+
+    .faq-item button {
+      width: 100%;
+      min-height: 72px;
+      padding: 0 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border: 0;
+      background: #ffffff;
+      color: var(--navy);
+      text-align: left;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .faq-item button svg {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+      color: var(--blue);
+      transition: transform 180ms ease;
+    }
+
+    .faq-item.open button svg {
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 220ms ease;
+    }
+
+    .faq-answer p {
+      margin: 0;
+      padding: 0 26px 24px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.62;
+    }
+
+    .final-cta {
+      text-align: center;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(31, 107, 255, 0.14), transparent 34%),
+        var(--navy);
+      color: #ffffff;
+    }
+
+    .final-cta h2 {
+      max-width: 850px;
+      margin: 0 auto 20px;
+      font-size: 64px;
+      line-height: 1.08;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    .final-cta h2 span {
+      color: #8fc0ff;
+    }
+
+    .final-cta p {
+      max-width: 760px;
+      margin: 0 auto 30px;
+      color: #d5e2f4;
+      font-size: 20px;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    .site-footer {
+      padding: 42px 0;
+      background: #ffffff;
+      border-top: 1px solid var(--line);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .footer-grid img {
+      width: 170px;
+    }
+
+    .footer-grid p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.62;
+    }
+
+    .reveal {
+      opacity: 1;
+      transform: none;
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    @media (max-width: 1100px) {
+      .hero h1 {
+        font-size: 56px;
+      }
+
+      .section-heading h2,
+      .final-cta h2 {
+        font-size: 48px;
+      }
+
+      .workflow {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .workflow-step {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .workflow-step:nth-child(2n) {
+        border-right: 0;
+      }
+
+      .workflow-step:last-child {
+        grid-column: 1 / -1;
+        border-bottom: 0;
+      }
+    }
+
+    @media (max-width: 920px) {
+      .nav-links,
+      .nav-actions {
+        display: none;
+      }
+
+      .mobile-menu {
+        display: inline-flex;
+      }
+
+      .brand img {
+        width: 148px;
+      }
+
+      .hero {
+        padding-top: 42px;
+      }
+
+      .hero h1 {
+        font-size: 52px;
+      }
+
+      .hero .subhead {
+        font-size: 18px;
+      }
+
+      .hero-media img {
+        height: 220px;
+      }
+
+      .metric-grid,
+      .problem-grid,
+      .proof-grid,
+      .pricing-grid,
+      .labor,
+      .compare,
+      .split,
+      .section-heading {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-grid {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .metric {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .metric:last-child {
+        border-bottom: 0;
+      }
+
+      .section {
+        padding: 72px 0;
+      }
+
+      .section-heading {
+        gap: 20px;
+        margin-bottom: 34px;
+      }
+
+      .section-heading h2 {
+        font-size: 42px;
+      }
+
+      .section-heading p {
+        font-size: 18px;
+      }
+
+      .split {
+        gap: 34px;
+      }
+
+      .workflow {
+        grid-template-columns: 1fr;
+      }
+
+      .workflow-step {
+        min-height: 0;
+        border-right: 0;
+      }
+
+      .workflow-step:last-child {
+        grid-column: auto;
+      }
+
+      .checks {
+        grid-template-columns: 1fr;
+      }
+
+      .report-title {
+        display: grid;
+        gap: 10px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .table {
+        min-width: 680px;
+      }
+
+      .guarantee {
+        grid-template-columns: 1fr;
+        padding: 30px;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .wrap {
+        width: min(100% - 30px, var(--max));
+      }
+
+      .nav {
+        height: 70px;
+      }
+
+      .offer-pill {
+        width: 100%;
+        padding: 0 14px;
+        font-size: 13px;
+      }
+
+      .hero {
+        padding: 32px 0 20px;
+      }
+
+      .hero h1 {
+        margin-top: 26px;
+        font-size: 38px;
+      }
+
+      .hero .subhead {
+        margin-top: 20px;
+        font-size: 16px;
+      }
+
+      .hero-actions {
+        display: grid;
+        gap: 12px;
+      }
+
+      .btn {
+        width: 100%;
+        min-height: 50px;
+        padding: 0 20px;
+      }
+
+      .proof-row {
+        align-items: flex-start;
+        justify-content: flex-start;
+        text-align: left;
+        gap: 14px;
+      }
+
+      .hero-media {
+        margin-top: 24px;
+        border-radius: 12px;
+      }
+
+      .hero-media img {
+        height: 170px;
+      }
+
+      .metric {
+        min-height: 118px;
+      }
+
+      .metric strong {
+        font-size: 34px;
+      }
+
+      .metric span {
+        font-size: 15px;
+      }
+
+      .section {
+        padding: 58px 0;
+      }
+
+      .section-heading h2,
+      .final-cta h2 {
+        font-size: 34px;
+      }
+
+      .section-heading p,
+      .body-copy,
+      .final-cta p {
+        font-size: 16px;
+      }
+
+      .quote-bar {
+        font-size: 21px;
+      }
+
+      .problem-item,
+      .proof-item,
+      .labor-column,
+      .plan-card,
+      .timeline-phase {
+        padding: 22px;
+      }
+
+      .timeline-phase {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .price strong {
+        font-size: 40px;
+      }
+
+      .guarantee h2 {
+        font-size: 30px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+
+      .btn,
+      .faq-answer,
+      .faq-item button svg {
+        transition: none;
+      }
+    }
+  </style>
 </head>
 <body>
-
-<!-- NAV -->
-<header class="nav">
-  <div class="wrap">
-    <a class="logo" href="#top"><span class="mark">L</span>LeadSuite</a>
-    <nav class="navlinks">
-      <a href="#mechanism">How it works</a>
-      <a href="#cost">vs. DIY</a>
-      <a href="#roadmap">Timeline</a>
-      <a href="#pricing">Pricing</a>
-      <a href="#faq">FAQ</a>
-    </nav>
-    <a href="#pricing" class="btn btn--primary">Book a Strategy Call</a>
-  </div>
-</header>
-
-<!-- HERO -->
-<section class="hero" id="top">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">Done-for-you · Onboarding 3–5 partners this quarter</span>
-      <h1>Cold email isn't dead.<br><span class="hot">Your lead source is.</span></h1>
-      <p class="sub">We build and manage a data-fueled cold email engine that pulls <b>30,000–45,000 fresh, Instagram-sourced B2B prospects</b> into your pipeline every month — and turns the replies into qualified sales conversations. <b>You approve the strategy, take the calls, and close. We run everything else.</b></p>
-      <div class="hero-cta">
-        <a href="#pricing" class="btn btn--primary btn--lg">See pricing &amp; plans <span class="arr">→</span></a>
-        <a href="#mechanism" class="btn btn--ghost btn--lg">How the engine works</a>
+  <header class="site-header">
+    <div class="wrap nav">
+      <a class="brand" href="#top" aria-label="LeadSuite home">
+        <img src="assets/leadsuite-logo.png" width="2508" height="627" alt="LeadSuite">
+      </a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#system">How it works</a>
+        <a href="#proof">Proof</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="#pricing">Pricing</a>
+        <a class="btn compact secondary" href="#final">Book a Demo</a>
+        <a class="btn compact" href="#pricing">Get Started</a>
       </div>
-      <div class="hero-trust">
-        <span><span class="dot"></span> Private cold email infrastructure</span>
-        <span><span class="dot"></span> 24/7 AI deliverability monitoring</span>
-        <span><span class="dot"></span> Fresh leads every month</span>
+      <button class="mobile-menu" type="button" aria-expanded="false" aria-controls="mobile-panel" aria-label="Open navigation">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="mobile-panel" id="mobile-panel">
+      <div class="wrap">
+        <a href="#system">How it works</a>
+        <a href="#proof">Proof</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn" href="#final">Book a Demo</a>
       </div>
     </div>
+  </header>
 
-    <!-- signature: engine console -->
-    <div class="reveal">
-      <div class="console" role="img" aria-label="Outbound engine console showing fresh leads sourced, infrastructure running, and positive replies routed">
-        <div class="console-top">
-          <span class="led r"></span><span class="led y"></span><span class="led g"></span>
-          <span class="console-title">leadsuite_engine.live</span>
-          <span class="console-live"><span class="dot"></span> RUNNING</span>
-        </div>
-        <div class="console-body">
-          <div class="crow">
-            <div class="crow-label"><span>Input — fresh sourcing</span><span class="stage">LeadSweeper</span></div>
-            <div class="crow-main"><span class="crow-num">38,420</span><span class="crow-unit">IG-sourced prospects scraped this cycle</span></div>
-            <div class="pills"><span class="pill live">enriched</span><span class="pill live">verified</span><span class="pill">deduped</span></div>
+  <main id="top">
+    <section class="hero">
+      <div class="wrap">
+        <div class="reveal">
+          <div class="offer-pill">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 10-13h-7l0-7Z" fill="currentColor"/></svg>
+            Now offering a fully managed cold email engine - done for you
           </div>
-          <div class="flowarrow">↓</div>
-          <div class="crow">
-            <div class="crow-label"><span>Engine — sending</span><span class="stage">SmartLead · 90 inboxes</span></div>
-            <div class="crow-main"><span class="crow-num">98.1%</span><span class="crow-unit">inbox deliverability · spam 0.2%</span></div>
-            <div class="pills"><span class="pill hot">warmup ok</span><span class="pill hot">domains healthy</span><span class="pill">3-step seq</span></div>
+          <h1>Fully Managed <span class="blue">Cold Email</span><br>Outbound for B2B Agencies</h1>
+          <p class="subhead">We build and manage a data-fueled outbound engine that sources <strong>30,000-45,000 fresh prospects every month</strong>, launches campaigns on private infrastructure, and routes qualified replies to your team.</p>
+          <div class="hero-actions">
+            <a class="btn" href="#pricing">See Pricing Plans</a>
+            <a class="btn secondary" href="#system">How the Engine Works</a>
           </div>
-          <div class="flowarrow">↓</div>
-          <div class="crow">
-            <div class="crow-label"><span>Output — to you</span><span class="stage">routed + phone-enriched</span></div>
-            <div class="crow-main"><span class="crow-num">+147</span><span class="crow-unit">positive replies pushed to your inbox</span></div>
-            <div class="pills"><span class="pill live">interested</span><span class="pill live">meeting req</span><span class="pill">📞 enriched</span></div>
+          <div class="proof-row" aria-label="LeadSuite proof points">
+            <span><i class="proof-dot"></i> Private sending domains</span>
+            <span><i class="proof-dot"></i> Fresh monthly lead data</span>
+            <span><i class="proof-dot"></i> 24/7 deliverability monitoring</span>
           </div>
         </div>
       </div>
-      <p style="font-family:var(--mono);font-size:11px;color:var(--t-mid);text-align:center;margin-top:12px;letter-spacing:.06em">Illustrative console. Volumes reflect plan capacity, not a results guarantee.</p>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- STAT BAR -->
-<section class="statbar">
-  <div class="wrap" style="padding:0">
-    <div class="grid">
-      <div class="stat reveal"><div class="n">30K–45K</div><div class="l">Fresh prospects contacted / month</div></div>
-      <div class="stat reveal"><div class="n">60–90</div><div class="l">Private inboxes built &amp; monitored</div></div>
-      <div class="stat reveal"><div class="n">5–8 wks</div><div class="l">From kickoff to live campaigns</div></div>
-      <div class="stat reveal"><div class="n">24/7</div><div class="l">AI deliverability monitoring</div></div>
-    </div>
-  </div>
-</section>
+    <section class="metric-band" aria-label="Key service metrics">
+      <div class="wrap metric-grid">
+        <div class="metric reveal"><strong>30K-45K</strong><span>Fresh prospects contacted monthly</span></div>
+        <div class="metric reveal"><strong>60-90</strong><span>Private inboxes built and monitored</span></div>
+        <div class="metric reveal"><strong>5-8 wks</strong><span>From kickoff to live campaigns</span></div>
+        <div class="metric reveal"><strong>24/7</strong><span>AI deliverability monitoring</span></div>
+      </div>
+    </section>
 
-<!-- THESIS -->
-<section class="section" id="why">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">Why this works</span>
-      <div class="sectionhead"><h2>Fresh inputs beat better automation</h2></div>
-    </div>
-    <div class="thesis reveal">
-      <p>Here's the uncomfortable truth almost nobody in this space will tell you: <b>most cold email doesn't fail because the copy is bad.</b> It fails before a single email is ever written.</p>
-      <p>99% of outbound runs on the exact same fuel. The same Apollo export. The same ZoomInfo list. The same contacts your three closest competitors already hammered last quarter. You can hire the best copywriter alive and it won't matter — <b>you're rewording a better message to a worse audience.</b></p>
-      <div class="hammer">Outbound isn't broken. The inputs are.</div>
-      <p>So we fix the inputs first. Instead of starting where everyone else starts — a recycled database — we start with <b>live public business signals from Instagram:</b> the niches, accounts, hashtags, locations, and audience clusters where your buyers are visibly active right now. Then we enrich, validate, clean, and suppress before a single send.</p>
-      <p>That fresh, less-commoditized data goes into <b>private cold email infrastructure</b> — separate from your main domain — and gets activated through <b>SmartLead campaigns we write, launch, monitor, and optimize every month.</b> The result is a managed outbound engine: a consistent path to qualified sales conversations without you buying stale lists, babysitting deliverability, or manually prospecting.</p>
-      <p>This is the same play that built outbound pipelines that don't dry up the moment referrals slow down. <b>Steal it. We'll run it for you.</b></p>
-    </div>
-
-    <div class="cards3">
-      <div class="card reveal">
-        <div class="ic">01</div>
-        <h4>Fresh data, not recycled lists</h4>
-        <p>Prospects sourced from live Instagram business signals — then enriched and verified — instead of the same database every competitor is already buying.</p>
-      </div>
-      <div class="card reveal">
-        <div class="ic">02</div>
-        <h4>Infrastructure that protects you</h4>
-        <p>60–90 private inboxes across 30–45 fresh domains. You never send from your main business domain. Deliverability is monitored around the clock.</p>
-      </div>
-      <div class="card reveal">
-        <div class="ic">03</div>
-        <h4>Managed every single month</h4>
-        <p>New lists, new campaigns, new tests — every month. We don't hand you a setup and disappear. We run the engine and report on it.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- BROKEN ALTERNATIVES -->
-<section class="section light" id="broken">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">You've tried to fix this before</span>
-      <div class="sectionhead">
-        <h2>Why the usual fixes didn't stick</h2>
-        <p>You're not new to outbound. You're overexposed to it. Here's exactly where each path breaks down — and why none of them solved the input problem.</p>
-      </div>
-    </div>
-    <div class="broken">
-      <div class="brk reveal"><div class="x">✕</div><div><h4>Apollo / ZoomInfo lists</h4><p>Broad, overused, and decaying. Outdated titles, bouncing emails, and the same names your competitors are already emailing.</p></div></div>
-      <div class="brk reveal"><div class="x">✕</div><div><h4>Cheap list vendors</h4><p>Looks fine on a spreadsheet. Then half of it bounces and the replies are dead. You paid for volume, not fit.</p></div></div>
-      <div class="brk reveal"><div class="x">✕</div><div><h4>DIY cold email</h4><p>You become a part-time deliverability operator — domains, DNS, warmup, inbox rotation, reply triage — instead of closing deals.</p></div></div>
-      <div class="brk reveal"><div class="x">✕</div><div><h4>Hiring an SDR</h4><p>$11K–$16K/mo all-in with manager and tooling, 60–90 days to ramp, 35%+ turnover — before you've proven the motion works.</p></div></div>
-      <div class="brk reveal"><div class="x">✕</div><div><h4>Generic outbound agencies</h4><p>Same lists, same scripts, same vanity metrics. "We book meetings" means nothing when the meetings aren't qualified.</p></div></div>
-      <div class="brk reveal"><div class="x">✕</div><div><h4>VAs &amp; one-off scraping tools</h4><p>Manual, inconsistent, and impossible to scale to the volume that makes outbound actually work. A tool isn't a system.</p></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- MECHANISM -->
-<section class="section" id="mechanism">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">The mechanism</span>
-      <div class="sectionhead">
-        <h2>The Data-Fueled Cold Email Engine</h2>
-        <p>Five components running as one managed system. The order matters: we fix the input layer first, then build the campaign engine around it.</p>
-      </div>
-    </div>
-    <div class="mech">
-      <div class="step reveal">
-        <div class="sn">STEP 01</div>
-        <h4>LeadSweeper sourcing</h4>
-        <p>Fresh e-commerce and Instagram-active business data scraped from live public signals — bios, sites, contact clues, audience clusters.</p>
-        <span class="tag in">Fresh input</span>
-      </div>
-      <div class="step reveal">
-        <div class="sn">STEP 02</div>
-        <h4>Enrichment</h4>
-        <p>Routed through ListKit, ZoomInfo, Apollo and more to append decision-maker contacts, verify emails, and fill the gaps.</p>
-        <span class="tag in">Verified</span>
-      </div>
-      <div class="step reveal">
-        <div class="sn">STEP 03</div>
-        <h4>Private infrastructure</h4>
-        <p>60–90 inboxes on private infrastructure across fresh domains — never your main domain — warmed and monitored for sender health.</p>
-        <span class="tag eng">Engine</span>
-      </div>
-      <div class="step reveal">
-        <div class="sn">STEP 04</div>
-        <h4>SmartLead execution</h4>
-        <p>A 3-step sequence we write, launch, and manage. Sending volume, inbox config, and performance handled end to end.</p>
-        <span class="tag eng">Engine</span>
-      </div>
-      <div class="step reveal">
-        <div class="sn">STEP 05</div>
-        <h4>Optimize &amp; refresh</h4>
-        <p>New lists monthly, copy tested continuously, deliverability watched 24/7. Positive replies phone-enriched and pushed to you.</p>
-        <span class="tag out">Output</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- UNDER THE HOOD -->
-<section class="section ink2" id="infra">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">Under the hood</span>
-      <div class="sectionhead">
-        <h2>The infrastructure you never have to touch</h2>
-        <p>You'll never log into any of this. But here's what's running for you — so you understand the depth of what we build and manage.</p>
-      </div>
-    </div>
-    <div class="hood">
-      <ul class="reveal">
-        <li><span class="ck">✓</span><span><b>30–45 fresh sending domains</b> purchased through PorkBun and configured for you — isolated from your primary business domain.</span></li>
-        <li><span class="ck">✓</span><span><b>60–90 private inboxes</b> on LeadSuite infrastructure, warmed and rotated to protect deliverability.</span></li>
-        <li><span class="ck">✓</span><span><b>24/7 AI deliverability monitoring</b> that flags inbox health issues and reconnects or replaces underperformers before they cost you.</span></li>
-        <li><span class="ck">✓</span><span><b>SmartLead campaign execution</b> — sequence logic, sending controls, reply tracking, and performance monitoring.</span></li>
-        <li><span class="ck">✓</span><span><b>Phone enrichment on positive replies</b> so your interested prospects come with a number, ready for fast follow-up.</span></li>
-      </ul>
-      <div class="rig reveal">
-        <div class="rhead"><span>infrastructure_panel</span><span style="color:var(--fresh)">● healthy</span></div>
-        <div class="domgrid">
-          <div class="node on">D01</div><div class="node on">D02</div><div class="node on">D03</div><div class="node on">D04</div><div class="node on">D05</div><div class="node">+40</div>
+    <section class="section" id="why">
+      <div class="wrap">
+        <div class="section-heading">
+          <div class="reveal">
+            <div class="section-label">Why this works</div>
+            <h2>Fresh inputs beat better automation.</h2>
+          </div>
+          <p class="reveal">Most cold email does not fail because the copy is bad. It fails because the lead source is stale, overused, and already exhausted by competitors.</p>
         </div>
-        <div class="riglbl">DOMAINS ONLINE · 45 / 45</div>
-        <div class="riglbl">INBOX DELIVERABILITY</div>
-        <div class="meter"><span style="width:98%"></span></div>
-        <div class="metaline"><span>98.1% primary inbox</span><span>spam 0.2%</span></div>
-        <div class="riglbl" style="margin-top:16px">WARMUP STATUS · 90 INBOXES</div>
-        <div class="meter"><span style="width:100%"></span></div>
-        <div class="metaline"><span>100% warmed</span><span>0 flagged</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- COST COMPARISON -->
-<section class="section light" id="cost">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">The real cost comparison</span>
-      <div class="sectionhead">
-        <h2>Why building this yourself rarely pencils out</h2>
-        <p>Most teams underestimate what it costs to assemble — and keep alive — the stack required to run outbound at the volume that actually moves the needle.</p>
-      </div>
-    </div>
-    <div class="compare">
-      <div class="col diy reveal">
-        <div class="tophead">The DIY route</div>
-        <h3>Building it in-house</h3>
-        <ul>
-          <li><span class="m">✕</span> $11,000–$16,000/mo for one SDR once you add salary, manager, and benefits</li>
-          <li><span class="m">✕</span> 60–90 days to hire, onboard, and ramp — with 35%+ annual turnover</li>
-          <li><span class="m">✕</span> Tool stack: scraping, enrichment, inboxes, domains, sending tool (~$1,000+/mo)</li>
-          <li><span class="m">✕</span> You still source the data, write the copy, and watch deliverability yourself</li>
-          <li><span class="m">✕</span> Domains burning and emails in spam while you learn DNS the hard way</li>
-          <li><span class="m">✕</span> The same recycled lists everyone else is already using</li>
-        </ul>
-        <div class="total"><div class="lbl">Realistic monthly cost (1 SDR + stack + overhead)</div><div class="big">$12,000–$17,000/mo</div></div>
-      </div>
-      <div class="col win reveal">
-        <span class="ribbon">The LeadSuite way</span>
-        <div class="tophead">Done-for-you</div>
-        <h3>The managed engine</h3>
-        <ul>
-          <li><span class="m">✓</span> Full cold email engine built &amp; managed for you — live in weeks, not months</li>
-          <li><span class="m">✓</span> Fresh Instagram-sourced lead lists rebuilt every single month</li>
-          <li><span class="m">✓</span> Private infrastructure — 30–45 domains, 60–90 inboxes, max deliverability protection</li>
-          <li><span class="m">✓</span> Copy, sequences, sending, and optimization handled end to end</li>
-          <li><span class="m">✓</span> 24/7 AI deliverability monitoring so your sends keep landing</li>
-          <li><span class="m">✓</span> No hiring, no managing, no tool sprawl — you approve and close</li>
-        </ul>
-        <div class="total"><div class="lbl">Starting at (Minimum plan, billed quarterly)</div><div class="big">$3,000/mo</div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ROADMAP -->
-<section class="section" id="roadmap">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">Launch timeline</span>
-      <div class="sectionhead">
-        <h2>From kickoff to live campaigns in weeks</h2>
-        <p>A bounded, three-phase build. You know exactly what happens, and when.</p>
-      </div>
-    </div>
-    <div class="road">
-      <div class="phase reveal">
-        <div class="pn"><span class="big">01</span><span class="wk">Weeks 1–2</span></div>
-        <div>
-          <h4>Discovery &amp; strategy</h4>
-          <ul>
-            <li><span class="ck">›</span> Review your offer, ICP, and sales motion</li>
-            <li><span class="ck">›</span> Define exact lead criteria &amp; Instagram sourcing angles</li>
-            <li><span class="ck">›</span> First LeadSweeper sourcing strategy built</li>
-            <li><span class="ck">›</span> PorkBun domains purchased &amp; configured</li>
-            <li><span class="ck">›</span> SmartLead campaign structure set up</li>
-            <li><span class="ck">›</span> First cold email script drafted for your approval</li>
-          </ul>
+        <div class="split">
+          <div class="body-copy reveal">
+            <p>Apollo exports, cheap list vendors, and recycled database pulls create the same problem: you are sending to the same people everyone else already hammered last quarter.</p>
+            <p>LeadSuite starts with live public business signals from Instagram, then enriches, validates, cleans, and suppresses the data before a single campaign launches.</p>
+            <div class="quote-bar">Outbound is not broken. The inputs are.</div>
+            <p>The fresh data goes into private cold email infrastructure, gets activated through managed SmartLead campaigns, and turns positive replies into qualified sales conversations your team can pursue.</p>
+          </div>
+          <div class="media-frame reveal">
+            <img src="assets/leadsuite-dashboard.png" width="1672" height="941" alt="LeadSuite dashboard with outreach composer, qualified leads, recent activity, and campaign performance">
+          </div>
         </div>
       </div>
-      <div class="phase reveal">
-        <div class="pn"><span class="big">02</span><span class="wk">Weeks 3–4</span></div>
-        <div>
-          <h4>Build &amp; configuration</h4>
-          <ul>
-            <li><span class="ck">›</span> First targeted lead list scraped &amp; prepared</li>
-            <li><span class="ck">›</span> Missing data enriched via ListKit &amp; sources</li>
-            <li><span class="ck">›</span> 3-step sequence finalized</li>
-            <li><span class="ck">›</span> Inboxes warmed, deliverability checks run</li>
-            <li><span class="ck">›</span> AI deliverability monitoring configured</li>
-            <li><span class="ck">›</span> Reporting format &amp; reply tracking prepared</li>
-          </ul>
+    </section>
+
+    <section class="section wash" id="problems">
+      <div class="wrap">
+        <div class="section-heading">
+          <div class="reveal">
+            <div class="section-label">The usual fixes</div>
+            <h2>Why the old outbound playbook keeps stalling.</h2>
+          </div>
+          <p class="reveal">You are not new to outbound. You are overexposed to the parts that make it fragile: stale data, deliverability work, tool sprawl, and channels no one wants to manage.</p>
+        </div>
+        <div class="problem-grid">
+          <article class="problem-item reveal">
+            <span class="mark">&times;</span>
+            <h3>Recycled databases</h3>
+            <p>Broad lists decay fast. By the time you export them, your competitors may already be in the same inboxes.</p>
+          </article>
+          <article class="problem-item reveal">
+            <span class="mark">&times;</span>
+            <h3>DIY deliverability</h3>
+            <p>Domains, DNS, inbox warmup, rotation, and spam checks pull your team into work that never directly closes deals.</p>
+          </article>
+          <article class="problem-item reveal">
+            <span class="mark">&times;</span>
+            <h3>Generic agencies</h3>
+            <p>Most agencies compete on "better copy" while quietly using the same commoditized inputs as everyone else.</p>
+          </article>
         </div>
       </div>
-      <div class="phase reveal">
-        <div class="pn"><span class="big">03</span><span class="wk">Weeks 5–8</span></div>
-        <div>
-          <h4>Launch, optimize &amp; scale</h4>
-          <ul>
-            <li><span class="ck">›</span> First campaign goes live</li>
-            <li><span class="ck">›</span> Deliverability, bounce, and reply behavior monitored</li>
-            <li><span class="ck">›</span> Positive replies routed &amp; phone-enriched for you</li>
-            <li><span class="ck">›</span> New email angles tested on live feedback</li>
-            <li><span class="ck">›</span> Additional monthly lead lists built</li>
-            <li><span class="ck">›</span> Volume scaled once the system is stable</li>
-          </ul>
+    </section>
+
+    <section class="section" id="system">
+      <div class="wrap">
+        <div class="section-heading center reveal">
+          <div class="section-label">How the system works</div>
+          <h2>The infrastructure behind your outbound engine.</h2>
+          <p>Five managed components running as one system: fresh data, enrichment, private infrastructure, campaign execution, and monthly optimization.</p>
+        </div>
+        <div class="workflow">
+          <article class="workflow-step reveal">
+            <div class="step-no">Step 01</div>
+            <h3>LeadSweeper sourcing</h3>
+            <p>Fresh e-commerce and Instagram-active business data sourced from live public signals.</p>
+            <span class="tag">Fresh input</span>
+          </article>
+          <article class="workflow-step reveal">
+            <div class="step-no">Step 02</div>
+            <h3>Enrichment</h3>
+            <p>ListKit, ZoomInfo, Apollo, and other sources fill contact gaps, validate emails, and prepare clean records.</p>
+            <span class="tag">Verified</span>
+          </article>
+          <article class="workflow-step reveal">
+            <div class="step-no">Step 03</div>
+            <h3>Private inboxes</h3>
+            <p>60-90 inboxes across fresh domains, isolated from your main business domain and monitored for health.</p>
+            <span class="tag">Protected</span>
+          </article>
+          <article class="workflow-step reveal">
+            <div class="step-no">Step 04</div>
+            <h3>SmartLead execution</h3>
+            <p>Campaign copy, sending windows, inbox rotation, reply tracking, and campaign operations handled end to end.</p>
+            <span class="tag">Managed</span>
+          </article>
+          <article class="workflow-step reveal">
+            <div class="step-no">Step 05</div>
+            <h3>Refresh and optimize</h3>
+            <p>New lists, new angles, deliverability checks, and positive reply enrichment every month.</p>
+            <span class="tag green">Output</span>
+          </article>
+        </div>
+        <div class="wide-asset reveal">
+          <img src="assets/leadsuite-automation-map.png" width="1672" height="941" alt="LeadSuite infrastructure map showing admin panel, domains, inboxes, sending platform, personalized messages, and paying clients">
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- DIVISION OF LABOR -->
-<section class="section ink2" id="labor">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">Division of labor</span>
-      <div class="sectionhead">
-        <h2>What we handle vs. what you handle</h2>
-        <p>A clean split. We run the machine. Your team stays focused on the only two things that actually require you: real conversations and closing.</p>
+    <section class="section bluewash" id="proof">
+      <div class="wrap">
+        <div class="section-heading">
+          <div class="reveal">
+            <div class="section-label">Proof and reporting</div>
+            <h2>Numbers you can actually inspect.</h2>
+          </div>
+          <p class="reveal">The reference deck uses clear metric bands and performance tables. This page follows that same pattern so the offer feels measurable, not vague.</p>
+        </div>
+        <div class="report-card reveal">
+          <div class="report-title">
+            <h3>Monthly outbound performance snapshot</h3>
+            <span>LeadSuite report</span>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Minimum Plan</th>
+                  <th>Pro Plan</th>
+                  <th>What It Means</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Fresh prospects</td>
+                  <td>Up to 30,000/mo</td>
+                  <td>Up to 45,000/mo</td>
+                  <td>Monthly sourced and prepared data</td>
+                </tr>
+                <tr>
+                  <td>Domains</td>
+                  <td>30</td>
+                  <td>45</td>
+                  <td>Private sending infrastructure</td>
+                </tr>
+                <tr>
+                  <td>Inboxes</td>
+                  <td>60</td>
+                  <td>90</td>
+                  <td>Warmed and monitored accounts</td>
+                </tr>
+                <tr>
+                  <td>Campaign cycle</td>
+                  <td>Monthly</td>
+                  <td>Monthly</td>
+                  <td>New lists, tests, and optimization</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="wide-asset reveal">
+          <img src="assets/leadsuite-metrics.png" width="1672" height="941" alt="LeadSuite key metrics and call performance table">
+        </div>
       </div>
-    </div>
-    <div class="labor">
-      <div class="lcol us reveal">
-        <div class="lh"><span class="badge">LEADSUITE</span> We handle</div>
-        <ul>
-          <li><span class="ck">▸</span> Custom inbox &amp; domain setup</li>
-          <li><span class="ck">▸</span> LeadSweeper scraping &amp; monthly list building</li>
-          <li><span class="ck">▸</span> Contact data enrichment</li>
-          <li><span class="ck">▸</span> Cold email copy &amp; 3-step sequences</li>
-          <li><span class="ck">▸</span> SmartLead setup, launch &amp; management</li>
-          <li><span class="ck">▸</span> Deliverability &amp; inbox health monitoring</li>
-          <li><span class="ck">▸</span> Campaign optimization &amp; monthly reporting</li>
-          <li><span class="ck">▸</span> Phone enrichment on positive replies</li>
-          <li><span class="ck">▸</span> Infrastructure troubleshooting</li>
-        </ul>
-      </div>
-      <div class="lcol you reveal">
-        <div class="lh"><span class="badge">YOUR TEAM</span> You handle</div>
-        <ul>
-          <li><span class="ck">✓</span> Approve messaging &amp; strategy</li>
-          <li><span class="ck">✓</span> Give feedback on target market &amp; positioning</li>
-          <li><span class="ck">✓</span> Respond to interested leads in your inbox</li>
-          <li><span class="ck">✓</span> Take the sales calls</li>
-          <li><span class="ck">✓</span> Follow up with qualified opportunities</li>
-          <li><span class="ck">✓</span> Sign clients</li>
-        </ul>
-        <p style="margin-top:18px;font-size:14px;color:var(--t-mid)">You never manage the backend infrastructure, scraping, list building, deliverability, SmartLead, inboxes, or campaign operations. That's the whole point.</p>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- DELIVERABLES -->
-<section class="section light" id="deliverables">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">The offer stack</span>
-      <div class="sectionhead">
-        <h2>Everything that's built, launched &amp; run for you</h2>
-        <p>This isn't software access or a list drop. It's a managed system, delivered in full.</p>
+    <section class="section" id="cost">
+      <div class="wrap">
+        <div class="section-heading">
+          <div class="reveal">
+            <div class="section-label">The real cost comparison</div>
+            <h2>Why building it yourself rarely pencils out.</h2>
+          </div>
+          <p class="reveal">Outbound at this volume is not just a sender account. It is data, infrastructure, writing, monitoring, reporting, and constant operational upkeep.</p>
+        </div>
+        <div class="compare">
+          <article class="compare-column reveal">
+            <div class="compare-head">
+              <div class="compare-label">The DIY route</div>
+              <h3>Building it in-house</h3>
+            </div>
+            <ul class="compare-list">
+              <li><span class="icon bad">&times;</span><span>$11,000-$16,000/mo for one SDR once you add salary, manager, and benefits.</span></li>
+              <li><span class="icon bad">&times;</span><span>60-90 days to hire, onboard, and ramp before the motion is stable.</span></li>
+              <li><span class="icon bad">&times;</span><span>Scraping, enrichment, domains, inboxes, sending tools, and reporting still need owners.</span></li>
+              <li><span class="icon bad">&times;</span><span>You are still responsible for data quality, copy, deliverability, and campaign upkeep.</span></li>
+            </ul>
+            <div class="total-row">
+              <span>Realistic monthly cost</span>
+              <strong>$12,000-$17,000/mo</strong>
+            </div>
+          </article>
+          <article class="compare-column featured reveal">
+            <div class="compare-head">
+              <div class="compare-label">The LeadSuite way</div>
+              <h3>The managed engine</h3>
+            </div>
+            <ul class="compare-list">
+              <li><span class="icon good">&#10003;</span><span>Full cold email engine built and managed for you in weeks, not months.</span></li>
+              <li><span class="icon good">&#10003;</span><span>Fresh Instagram-sourced lead lists rebuilt every single month.</span></li>
+              <li><span class="icon good">&#10003;</span><span>30-45 domains, 60-90 inboxes, and deliverability protection included.</span></li>
+              <li><span class="icon good">&#10003;</span><span>Copy, sequences, sending, reporting, and optimization handled end to end.</span></li>
+            </ul>
+            <div class="total-row">
+              <span>Starting at, billed quarterly</span>
+              <strong>$3,000/mo</strong>
+            </div>
+          </article>
+        </div>
       </div>
-    </div>
-    <div class="deliv">
-      <div class="ditem reveal"><span class="ck">✓</span> Custom cold email outreach engine</div>
-      <div class="ditem reveal"><span class="ck">✓</span> LeadSweeper-powered lead sourcing</div>
-      <div class="ditem reveal"><span class="ck">✓</span> Fresh monthly lead list creation</div>
-      <div class="ditem reveal"><span class="ck">✓</span> Instagram-sourced business lead data</div>
-      <div class="ditem reveal"><span class="ck">✓</span> Enrichment via ListKit, ZoomInfo, Apollo</div>
-      <div class="ditem reveal"><span class="ck">✓</span> PorkBun domain setup guidance</div>
-      <div class="ditem reveal"><span class="ck">✓</span> 60–90 cold email inboxes</div>
-      <div class="ditem reveal"><span class="ck">✓</span> Private cold email infrastructure</div>
-      <div class="ditem reveal"><span class="ck">✓</span> SmartLead campaign setup &amp; access</div>
-      <div class="ditem reveal"><span class="ck">✓</span> 24/7 AI deliverability monitoring</div>
-      <div class="ditem reveal"><span class="ck">✓</span> Inbox warmup &amp; health checks</div>
-      <div class="ditem reveal"><span class="ck">✓</span> 3-step cold email sequence</div>
-      <div class="ditem reveal"><span class="ck">✓</span> Monthly campaign writing</div>
-      <div class="ditem reveal"><span class="ck">✓</span> Campaign launch &amp; management</div>
-      <div class="ditem reveal"><span class="ck">✓</span> Monthly optimization &amp; new tests</div>
-      <div class="ditem reveal"><span class="ck">✓</span> Positive reply tracking</div>
-      <div class="ditem reveal"><span class="ck">✓</span> Phone enrichment for positive replies</div>
-      <div class="ditem reveal"><span class="ck">✓</span> Monthly performance reporting</div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- PROOF / BELIEVABILITY -->
-<section class="section" id="proof">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">Why you can believe it works</span>
-      <div class="sectionhead">
-        <h2>We show you the messy middle</h2>
-        <p>Most outbound offers hide the part that matters. We do the opposite. Before you commit a dollar, you see exactly how the engine is built, sourced, and measured.</p>
+    <section class="section wash" id="timeline">
+      <div class="wrap">
+        <div class="section-heading">
+          <div class="reveal">
+            <div class="section-label">Launch timeline</div>
+            <h2>From kickoff to live campaigns in weeks.</h2>
+          </div>
+          <p class="reveal">A bounded buildout with visible milestones, approvals, and monthly optimization once the first campaign is live.</p>
+        </div>
+        <div class="timeline">
+          <article class="timeline-phase reveal">
+            <div class="phase-num"><strong>01</strong><span>Weeks 1-2</span></div>
+            <div>
+              <h3>Discovery and strategy</h3>
+              <ul class="checks">
+                <li><span class="check">&#10003;</span><span>Review offer, ICP, and sales motion</span></li>
+                <li><span class="check">&#10003;</span><span>Define sourcing angles and lead criteria</span></li>
+                <li><span class="check">&#10003;</span><span>Purchase and configure private domains</span></li>
+                <li><span class="check">&#10003;</span><span>Draft the first campaign for approval</span></li>
+              </ul>
+            </div>
+          </article>
+          <article class="timeline-phase reveal">
+            <div class="phase-num"><strong>02</strong><span>Weeks 3-4</span></div>
+            <div>
+              <h3>Build and configuration</h3>
+              <ul class="checks">
+                <li><span class="check">&#10003;</span><span>Scrape and prepare the first targeted lead list</span></li>
+                <li><span class="check">&#10003;</span><span>Enrich missing data and validate records</span></li>
+                <li><span class="check">&#10003;</span><span>Warm inboxes and run deliverability checks</span></li>
+                <li><span class="check">&#10003;</span><span>Configure reporting and reply tracking</span></li>
+              </ul>
+            </div>
+          </article>
+          <article class="timeline-phase reveal">
+            <div class="phase-num"><strong>03</strong><span>Weeks 5-8</span></div>
+            <div>
+              <h3>Launch, optimize, and scale</h3>
+              <ul class="checks">
+                <li><span class="check">&#10003;</span><span>First campaign goes live</span></li>
+                <li><span class="check">&#10003;</span><span>Deliverability and reply behavior monitored</span></li>
+                <li><span class="check">&#10003;</span><span>Positive replies routed and phone-enriched</span></li>
+                <li><span class="check">&#10003;</span><span>New monthly lists and email angles tested</span></li>
+              </ul>
+            </div>
+          </article>
+        </div>
       </div>
-    </div>
-    <div class="proofgrid">
-      <div class="pcard reveal">
-        <div class="k">Mechanism proof</div>
-        <h4>A specific, bounded system</h4>
-        <p>Not "we book meetings." A defined input layer, defined infrastructure, defined sequence, defined reporting. On your strategy call we walk the exact sourcing path for your market.</p>
-      </div>
-      <div class="pcard reveal">
-        <div class="k">Process proof</div>
-        <h4>Sample leads &amp; infra checklist</h4>
-        <p>You see how Instagram signals map to your ICP, what enrichment and validation look like, and the deliverability checklist your sending runs through — before launch.</p>
-      </div>
-      <div class="pcard reveal">
-        <div class="k">Operational proof</div>
-        <h4>Reporting you can read</h4>
-        <p>Monthly reporting on sends, replies, positive responses, and deliverability health — so you always know what the engine is doing and what's converting.</p>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- GUARANTEE -->
-<section class="section ink2" id="guarantee">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">Risk reversal</span>
-      <div class="sectionhead"><h2>We guarantee the build &amp; the execution</h2></div>
-    </div>
-    <div class="guarantee reveal">
-      <div class="gseal">BUILD<br>&amp;<br>LAUNCH<br>GUARANTEE</div>
-      <div>
-        <h3>If it isn't live, we keep working — free.</h3>
-        <p>We guarantee your cold email outreach engine will be built, configured, launched, monitored, and optimized to the agreed execution timeline. If we don't complete the infrastructure setup, lead list buildout, campaign sequence, and first campaign launch within the agreed onboarding window, <b style="color:var(--t-hi)">we keep working at no additional management fee until the system is live.</b></p>
-        <p>And if deliverability issues come up, we diagnose, troubleshoot, and optimize the infrastructure at no additional management fee as part of the ongoing service. We guarantee the buildout and the execution — the parts we control — not closed revenue, which depends on your offer, pricing, and close rate.</p>
+    <section class="section" id="labor">
+      <div class="wrap">
+        <div class="section-heading center reveal">
+          <div class="section-label">Division of labor</div>
+          <h2>We run the machine. You close the opportunities.</h2>
+          <p>A clean split keeps your team focused on strategy, sales conversations, and closing instead of backend outbound operations.</p>
+        </div>
+        <div class="labor">
+          <article class="labor-column reveal">
+            <h3><span class="small-pill">LeadSuite</span> We handle</h3>
+            <ul class="checks">
+              <li><span class="check">&#10003;</span><span>Custom inbox and domain setup</span></li>
+              <li><span class="check">&#10003;</span><span>LeadSweeper scraping and monthly list building</span></li>
+              <li><span class="check">&#10003;</span><span>Contact enrichment and validation</span></li>
+              <li><span class="check">&#10003;</span><span>Cold email copy and 3-step sequences</span></li>
+              <li><span class="check">&#10003;</span><span>SmartLead setup, launch, and management</span></li>
+              <li><span class="check">&#10003;</span><span>Deliverability monitoring and reporting</span></li>
+            </ul>
+          </article>
+          <article class="labor-column you reveal">
+            <h3><span class="small-pill">Your team</span> You handle</h3>
+            <ul class="checks">
+              <li><span class="check">&#10003;</span><span>Approve strategy and messaging</span></li>
+              <li><span class="check">&#10003;</span><span>Give ICP and positioning feedback</span></li>
+              <li><span class="check">&#10003;</span><span>Respond to interested leads</span></li>
+              <li><span class="check">&#10003;</span><span>Take sales calls</span></li>
+              <li><span class="check">&#10003;</span><span>Follow up with qualified opportunities</span></li>
+              <li><span class="check">&#10003;</span><span>Sign clients</span></li>
+            </ul>
+          </article>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- PRICING -->
-<section class="section light" id="pricing">
-  <div class="wrap">
-    <div class="reveal" style="text-align:center">
-      <span class="eyebrow" style="justify-content:center">Investment</span>
-      <div class="sectionhead" style="margin:18px auto 0;text-align:center">
-        <h2 style="margin:0 auto">Choose your outbound engine</h2>
+    <section class="section bluewash" id="pricing">
+      <div class="wrap">
+        <div class="section-heading center reveal">
+          <div class="section-label">Pricing</div>
+          <h2>Choose your outbound engine.</h2>
+          <p>Billed quarterly. 90-day minimum commitment. No setup fees.</p>
+        </div>
+        <div class="pricing-grid">
+          <article class="plan-card reveal">
+            <span class="plan-badge">Starter</span>
+            <h3>Minimum</h3>
+            <div class="price"><strong>$3,000</strong><span>/mo</span></div>
+            <div class="quarter">$9,000 / quarter</div>
+            <ul class="checks">
+              <li><span class="check">&#10003;</span><span>Up to 30,000 leads contacted per month</span></li>
+              <li><span class="check">&#10003;</span><span>30 domains purchased via PorkBun</span></li>
+              <li><span class="check">&#10003;</span><span>60 private email inboxes</span></li>
+              <li><span class="check">&#10003;</span><span>LeadSweeper-powered sourcing</span></li>
+              <li><span class="check">&#10003;</span><span>24/7 AI deliverability monitoring</span></li>
+              <li><span class="check">&#10003;</span><span>Phone enrichment on positive replies</span></li>
+            </ul>
+            <a class="btn secondary" href="#final">Start with Minimum</a>
+          </article>
+          <article class="plan-card featured reveal">
+            <span class="plan-badge">Most Popular</span>
+            <h3>Pro</h3>
+            <div class="price"><strong>$5,000</strong><span>/mo</span></div>
+            <div class="quarter">$15,000 / quarter</div>
+            <ul class="checks">
+              <li><span class="check">&#10003;</span><span>Up to 45,000 leads contacted per month</span></li>
+              <li><span class="check">&#10003;</span><span>45 domains purchased via PorkBun</span></li>
+              <li><span class="check">&#10003;</span><span>90 private email inboxes</span></li>
+              <li><span class="check">&#10003;</span><span>Expanded LeadSweeper sourcing</span></li>
+              <li><span class="check">&#10003;</span><span>More campaign testing capacity</span></li>
+              <li><span class="check">&#10003;</span><span>Priority campaign management</span></li>
+            </ul>
+            <a class="btn" href="#final">Start with Pro</a>
+          </article>
+        </div>
+        <p class="scarcity reveal"><strong>Only 3-5 new partners onboarded per month.</strong> Every account requires dedicated domain setup, inbox configuration, LeadSweeper sourcing, and private infrastructure allocation.</p>
       </div>
-    </div>
-    <p class="price-note">Billed quarterly · 90-day minimum commitment · No setup fees</p>
-    <div class="plans">
-      <div class="plan reveal">
-        <div class="pname">Minimum</div>
-        <div class="price"><span class="amt">$3,000</span><span class="per">/mo</span></div>
-        <div class="qtr">$9,000 / quarter</div>
-        <ul>
-          <li><span class="ck">✓</span> Up to 30,000 emails &amp; leads contacted / month</li>
-          <li><span class="ck">✓</span> 30 domains (purchased via PorkBun)</li>
-          <li><span class="ck">✓</span> 60 private email inboxes</li>
-          <li><span class="ck">✓</span> Cold email sending tool</li>
-          <li><span class="ck">✓</span> LeadSweeper-powered sourcing</li>
-          <li><span class="ck">✓</span> 24/7 AI deliverability monitoring</li>
-          <li><span class="ck">✓</span> Monthly campaign setup &amp; optimization</li>
-          <li><span class="ck">✓</span> Phone enrichment on positive replies</li>
-        </ul>
-        <a href="#final" class="btn btn--ghost">Start with Minimum</a>
+    </section>
+
+    <section class="section" id="believability">
+      <div class="wrap">
+        <div class="section-heading">
+          <div class="reveal">
+            <div class="section-label">Why you can believe it works</div>
+            <h2>We show you the messy middle.</h2>
+          </div>
+          <p class="reveal">Before you commit, you see how the engine is sourced, built, and measured - not just a promise that meetings will appear.</p>
+        </div>
+        <div class="proof-grid">
+          <article class="proof-item reveal">
+            <span>Mechanism proof</span>
+            <h3>A specific, bounded system</h3>
+            <p>Fresh sourcing, enrichment, private infrastructure, campaign execution, and reporting are shown as one operating model.</p>
+          </article>
+          <article class="proof-item reveal">
+            <span>Process proof</span>
+            <h3>Sample leads and infra checklist</h3>
+            <p>You can inspect how Instagram signals map to your ICP and what the deliverability checklist includes before launch.</p>
+          </article>
+          <article class="proof-item reveal">
+            <span>Operational proof</span>
+            <h3>Reporting you can read</h3>
+            <p>Monthly reporting covers sends, replies, positive responses, and deliverability health so you know what is converting.</p>
+          </article>
+        </div>
       </div>
-      <div class="plan pop reveal">
-        <span class="ribbon" style="background:var(--ignite);color:#1A0E03">Most popular</span>
-        <div class="pname">Pro</div>
-        <div class="price"><span class="amt">$5,000</span><span class="per">/mo</span></div>
-        <div class="qtr">$15,000 / quarter</div>
-        <ul>
-          <li><span class="ck">✓</span> Up to 45,000 emails &amp; leads contacted / month</li>
-          <li><span class="ck">✓</span> 45 domains (purchased via PorkBun)</li>
-          <li><span class="ck">✓</span> 90 private email inboxes</li>
-          <li><span class="ck">✓</span> Cold email sending tool</li>
-          <li><span class="ck">✓</span> Expanded LeadSweeper sourcing</li>
-          <li><span class="ck">✓</span> 24/7 AI deliverability monitoring</li>
-          <li><span class="ck">✓</span> More campaign testing capacity</li>
-          <li><span class="ck">✓</span> Priority campaign management</li>
-        </ul>
-        <a href="#final" class="btn btn--primary">Start with Pro</a>
+    </section>
+
+    <section class="section dark" id="guarantee">
+      <div class="wrap">
+        <div class="guarantee reveal">
+          <div class="seal">Build<br>and<br>launch<br>guarantee</div>
+          <div>
+            <h2>If it is not live, we keep working.</h2>
+            <p>We guarantee your outreach engine will be built, configured, launched, monitored, and optimized to the agreed execution timeline. If the infrastructure setup, first list buildout, campaign sequence, and first campaign launch are not complete within the agreed onboarding window, we keep working at no additional management fee until the system is live.</p>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="scar reveal" style="background:#FFF;border-color:rgba(255,122,26,.32)">
-      <span class="ic">⚡</span>
-      <p style="color:var(--t-ink)"><b style="color:#C2540A">Only 3–5 new partners onboarded per month.</b> Every account requires dedicated domain setup, inbox configuration, LeadSweeper sourcing, and private infrastructure allocation. Once this month's capacity is allocated, new partners move to the next onboarding window.</p>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- FAQ -->
-<section class="section" id="faq">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">Questions, answered</span>
-      <div class="sectionhead"><h2>The things skeptical buyers ask</h2></div>
-    </div>
-    <div class="faq">
-      <div class="qa reveal"><button>Are Instagram-sourced leads actually qualified for B2B?</button><div class="ans"><p>We don't email random Instagram users. Instagram is a discovery layer — a way to find visibly active businesses by niche, account, hashtag, location, and audience cluster that traditional databases flatten or miss. Those signals are then enriched, validated against your ICP, cleaned, and suppressed before any outreach. It's discovery first, validation second, sending third.</p></div></div>
-      <div class="qa reveal"><button>Will these emails land in the inbox, or will we burn domains?</button><div class="ans"><p>You send from 30–45 fresh domains and 60–90 private inboxes — never your main business domain. Inboxes are warmed, rotated, and watched by 24/7 AI deliverability monitoring that flags and replaces underperformers. If deliverability issues come up, we diagnose and fix the infrastructure at no additional management fee. We don't promise a specific inbox-placement percentage — no honest provider can under current Gmail and Outlook rules — but protecting deliverability is the core of the system.</p></div></div>
-      <div class="qa reveal"><button>Why use this instead of Apollo, ZoomInfo, or a VA?</button><div class="ans"><p>Apollo and ZoomInfo are broad databases — useful, but the same lists your competitors already use. This is a fresher, less-commoditized input layer plus a fully managed engine on top. A VA can run a tool; they can't build private infrastructure, source fresh data, manage deliverability, and optimize campaigns at 30K–45K sends a month. A tool isn't a system.</p></div></div>
-      <div class="qa reveal"><button>Why not just hire an SDR internally?</button><div class="ans"><p>Hiring before the motion is proven means salary, manager cost, tooling, 60–90 days of ramp, and 35%+ turnover risk — realistically $11K–$16K/mo all-in — and you still have to build the system yourself. This gives you a managed outbound motion live in weeks, for a fraction of that, before you ever staff a department.</p></div></div>
-      <div class="qa reveal"><button>How much work will my team still have to do?</button><div class="ans"><p>After onboarding: approve messaging and strategy, respond to interested replies, take the calls we route to you, and close. You don't manage scraping, domains, inboxes, deliverability, SmartLead, list building, or campaign operations. Those stay with us.</p></div></div>
-      <div class="qa reveal"><button>How long does it take to launch — and why the 90-day commitment?</button><div class="ans"><p>Campaigns go live within the 5–8 week onboarding window. The 90-day minimum exists because cold email isn't a 30-day experiment: domain setup, inbox warmup, deliverability testing, launch, reply analysis, and optimization all need time to stabilize and produce data worth acting on. Ninety days gives the engine room to compound toward qualified conversations.</p></div></div>
-      <div class="qa reveal"><button>How is this different from a typical outbound agency?</button><div class="ans"><p>Most agencies start where everyone starts — a recycled database — then compete on "better copy." We fix the input layer first with fresh Instagram-sourced data, then run private infrastructure and managed SmartLead execution around it. You get a managed engine with a defined mechanism and transparent reporting, not vanity metrics and the same lists as everyone else.</p></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- FINAL CTA -->
-<section class="section final" id="final">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow" style="justify-content:center">Your move</span>
-      <h2>Stop fighting over the<br><span class="hot">same stale leads.</span></h2>
-      <p>We build and manage the data-fueled cold email engine that turns fresh Instagram-sourced business leads into qualified B2B sales conversations — without stale databases, fragile infrastructure, or manual prospecting. You approve the strategy, take the calls, and close.</p>
-      <div class="hero-cta">
-        <a href="#pricing" class="btn btn--primary btn--lg">Book a strategy call <span class="arr">→</span></a>
-        <a href="#mechanism" class="btn btn--ghost btn--lg">See how the engine works</a>
+    <section class="section wash" id="faq">
+      <div class="wrap">
+        <div class="section-heading center reveal">
+          <div class="section-label">Questions, answered</div>
+          <h2>The things skeptical buyers ask.</h2>
+        </div>
+        <div class="faq">
+          <article class="faq-item reveal">
+            <button type="button">Are Instagram-sourced leads actually qualified for B2B?<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <div class="faq-answer"><p>Instagram is a discovery layer, not the final qualification layer. We use public business signals to find active companies, then enrich, validate, clean, and suppress records against your ICP before outreach.</p></div>
+          </article>
+          <article class="faq-item reveal">
+            <button type="button">Will these emails land in the inbox?<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <div class="faq-answer"><p>You send from private domains and inboxes, never your main business domain. Inboxes are warmed, rotated, and monitored so health issues can be flagged before they become expensive.</p></div>
+          </article>
+          <article class="faq-item reveal">
+            <button type="button">Why not use Apollo, ZoomInfo, or a VA?<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <div class="faq-answer"><p>Apollo and ZoomInfo can be useful, but they are broad databases. A VA can run a tool, but they do not give you a managed system: fresh data, enrichment, infrastructure, deliverability, campaigns, and reporting together.</p></div>
+          </article>
+          <article class="faq-item reveal">
+            <button type="button">How much work will my team still have to do?<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <div class="faq-answer"><p>Approve strategy, respond to interested replies, take the calls, follow up, and close. We handle scraping, enrichment, inboxes, deliverability, SmartLead operations, and reporting.</p></div>
+          </article>
+          <article class="faq-item reveal">
+            <button type="button">Why the 90-day commitment?<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <div class="faq-answer"><p>Cold email needs setup, warmup, launch, reply analysis, and optimization time. Ninety days gives the engine room to stabilize and produce data worth acting on.</p></div>
+          </article>
+        </div>
       </div>
-      <p style="font-size:14px;color:var(--t-mid);margin-top:22px">On the call we'll review your offer, map your market, and show you the exact sourcing path — then tell you honestly whether you're a fit.</p>
+    </section>
+
+    <section class="section final-cta" id="final">
+      <div class="wrap reveal">
+        <h2>Stop fighting over the <span>same stale leads.</span></h2>
+        <p>We build and manage the data-fueled cold email engine that turns fresh business signals into qualified B2B sales conversations. You approve the strategy, take the calls, and close.</p>
+        <div class="hero-actions">
+          <a class="btn" href="#pricing">Book a Strategy Call</a>
+          <a class="btn secondary" href="#system">Review the System</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <a href="#top" aria-label="LeadSuite home">
+        <img src="assets/leadsuite-logo.png" width="2508" height="627" alt="LeadSuite">
+      </a>
+      <p>LeadSuite builds and manages a data-fueled cold email engine for B2B agencies, SaaS, and service businesses. We guarantee buildout and execution to the agreed timeline, not closed revenue, which depends on your offer, pricing, and close rate. Sourcing uses public business signals, enriched and validated before outreach.</p>
     </div>
-  </div>
-</section>
+  </footer>
 
-<footer>
-  <div class="wrap">
-    <a class="logo" href="#top"><span class="mark">L</span>LeadSuite</a>
-    <p class="legal">LeadSuite builds and manages a data-fueled cold email engine for B2B agencies, SaaS, and service businesses. We guarantee buildout and execution to the agreed timeline — not closed revenue, which depends on your offer, pricing, and close rate. Sourcing uses public business signals, enriched and validated before outreach.</p>
-  </div>
-</footer>
+  <script>
+    const menuButton = document.querySelector(".mobile-menu");
+    const mobilePanel = document.querySelector(".mobile-panel");
 
-<script>
-  // scroll reveal
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
-  },{threshold:0.12, rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-
-  // faq accordion
-  document.querySelectorAll('.qa button').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const qa = btn.parentElement;
-      const ans = qa.querySelector('.ans');
-      const open = qa.classList.contains('open');
-      document.querySelectorAll('.qa.open').forEach(o=>{ o.classList.remove('open'); o.querySelector('.ans').style.maxHeight=null; });
-      if(!open){ qa.classList.add('open'); ans.style.maxHeight = ans.scrollHeight + 'px'; }
+    menuButton.addEventListener("click", () => {
+      const isOpen = mobilePanel.classList.toggle("open");
+      menuButton.setAttribute("aria-expanded", String(isOpen));
     });
-  });
-</script>
+
+    mobilePanel.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        mobilePanel.classList.remove("open");
+        menuButton.setAttribute("aria-expanded", "false");
+      });
+    });
+
+    document.querySelectorAll(".faq-item button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const item = button.closest(".faq-item");
+        const answer = item.querySelector(".faq-answer");
+        const isOpen = item.classList.contains("open");
+
+        document.querySelectorAll(".faq-item.open").forEach((openItem) => {
+          openItem.classList.remove("open");
+          openItem.querySelector(".faq-answer").style.maxHeight = null;
+        });
+
+        if (!isOpen) {
+          item.classList.add("open");
+          answer.style.maxHeight = `${answer.scrollHeight}px`;
+        }
+      });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -48px 0px" });
+
+    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+  </script>
 </body>
 </html>
